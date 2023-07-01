@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class ButtonScript : MonoBehaviour
 {
     public int buttonIndex;
-
+    private AudioSource buttonAudio;
     private SimonSays gameManager;
     private Button button;
 
@@ -18,5 +18,6 @@ public class ButtonScript : MonoBehaviour
     private void OnClick()
     {
         gameManager.OnButtonClicked(buttonIndex);
+
     }
 }

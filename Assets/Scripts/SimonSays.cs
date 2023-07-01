@@ -86,7 +86,6 @@ public class SimonSays : MonoBehaviour
             {
                 if (currentRound >= 4)
                 {
-                    // Player has completed all rounds, show game over screen or restart the game
                     Debug.Log("Game Over: You win!");
                 }
                 else
@@ -104,7 +103,6 @@ public class SimonSays : MonoBehaviour
 
                 if (chances <= 0)
                 {
-                    // Player has run out of chances, show game over screen or restart the game
                     Debug.Log("Game Over: You lose!");
                 }
             }
