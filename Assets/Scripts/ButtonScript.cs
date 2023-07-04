@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class ButtonScript : MonoBehaviour
 {
     public int buttonIndex;
-    private AudioSource buttonAudio;
+
     private SimonSays gameManager;
     private Button button;
 

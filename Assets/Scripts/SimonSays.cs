@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class SimonSays : MonoBehaviour
 {
     public Sprite[] sequenceSprites;
+    public AudioClip[] sequenceAudioClips;
     public Button[] buttons;
     public Image sequenceImage;
 
@@ -14,6 +15,7 @@ public class SimonSays : MonoBehaviour
     private int currentRound;
     private int chances;
     private bool isDisplayingSequence;
+    private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +24,7 @@ public class SimonSays : MonoBehaviour
         playerInput = new List<int>();
         currentRound = 1;
         chances = 2;
+        audioSource = GetComponent<AudioSource>();
 
         GenerateSpriteSequence();
         StartCoroutine(DisplaySequence());
@@ -48,7 +51,9 @@ public class SimonSays : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
             sequenceImage.sprite = sequenceSprites[spriteIndex];
-            yield return new WaitForSeconds(1f); // Delay between sprite changes
+            audioSource.clip = sequenceAudioClips[spriteIndex];
+            audioSource.Play();
+            yield return new WaitForSeconds(0.5f); // Delay between sprite changes
             sequenceImage.sprite = null;
             yield return new WaitForSeconds(0.5f); // Delay before showing the next sprite
         }
@@ -79,6 +84,8 @@ public class SimonSays : MonoBehaviour
             return;
 
         playerInput.Add(buttonIndex);
+        audioSource.clip = sequenceAudioClips[buttonIndex];
+        audioSource.Play();
 
         if (playerInput.Count == spriteSequence.Count)
         {
@@ -86,6 +93,7 @@ public class SimonSays : MonoBehaviour
             {
                 if (currentRound >= 4)
                 {
+                    // Player has completed all rounds, show game over screen or restart the game
                     Debug.Log("Game Over: You win!");
                 }
                 else
@@ -101,9 +109,15 @@ public class SimonSays : MonoBehaviour
                 chances--;
                 playerInput.Clear();
 
-                if (chances <= 0)
+                if (chances == 1)
                 {
-                    Debug.Log("Game Over: You lose!");
+                    Debug.Log("You fucked up. Last chance");
+                    GenerateSpriteSequence();
+                    StartCoroutine(DisplaySequence());
+                }
+                else if (chances == 0)
+                {
+                    Debug.Log("Gameover Dude!");
                 }
             }
         }
