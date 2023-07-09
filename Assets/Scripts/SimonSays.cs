@@ -7,8 +7,13 @@ public class SimonSays : MonoBehaviour
 {
     public Sprite[] sequenceSprites;
     public AudioClip[] sequenceAudioClips;
+    public Image[] lights;
     public Button[] buttons;
     public Image sequenceImage;
+    public Sprite defaultImage;
+    public AudioSource[] sources;    
+    public Image loseImage;
+    public Bridge bridge;
 
     private List<int> spriteSequence;
     private List<int> playerInput;
@@ -17,9 +22,12 @@ public class SimonSays : MonoBehaviour
     private bool isDisplayingSequence;
     private AudioSource audioSource;
 
-    // Start is called before the first frame update
+
+
+
     void Start()
     {
+        loseImage.enabled = false;
         spriteSequence = new List<int>();
         playerInput = new List<int>();
         currentRound = 1;
@@ -33,7 +41,7 @@ public class SimonSays : MonoBehaviour
     void GenerateSpriteSequence()
     {
         spriteSequence.Clear();
-        int spriteCount = currentRound + 1; // Increase sequence length for each round
+        int spriteCount = currentRound + 1;
 
         for (int i = 0; i < spriteCount; i++)
         {
@@ -53,9 +61,9 @@ public class SimonSays : MonoBehaviour
             sequenceImage.sprite = sequenceSprites[spriteIndex];
             audioSource.clip = sequenceAudioClips[spriteIndex];
             audioSource.Play();
-            yield return new WaitForSeconds(0.5f); // Delay between sprite changes
-            sequenceImage.sprite = null;
-            yield return new WaitForSeconds(0.5f); // Delay before showing the next sprite
+            yield return new WaitForSeconds(0.5f);
+            sequenceImage.sprite = defaultImage;
+            yield return new WaitForSeconds(0.5f); 
         }
 
         isDisplayingSequence = false;
@@ -93,12 +101,15 @@ public class SimonSays : MonoBehaviour
             {
                 if (currentRound >= 4)
                 {
-                    // Player has completed all rounds, show game over screen or restart the game
+                    
                     Debug.Log("Game Over: You win!");
+                    lights[3].enabled = true;
+                    StartCoroutine(VictoryCall());
                 }
                 else
                 {
                     currentRound++;
+                    RoundLED();
                     GenerateSpriteSequence();
                     playerInput.Clear();
                     StartCoroutine(DisplaySequence());
@@ -112,12 +123,13 @@ public class SimonSays : MonoBehaviour
                 if (chances == 1)
                 {
                     Debug.Log("You fucked up. Last chance");
+                    sources[1].Play();
                     GenerateSpriteSequence();
                     StartCoroutine(DisplaySequence());
                 }
                 else if (chances == 0)
                 {
-                    Debug.Log("Gameover Dude!");
+                    StartCoroutine(DefeatCall());
                 }
             }
         }
@@ -131,7 +143,47 @@ public class SimonSays : MonoBehaviour
             {
                 return false;
             }
+
         }
         return true;
+    }
+
+    private IEnumerator VictoryCall()
+    {
+        sources[0].Play();
+        yield return new WaitForSeconds(2);
+        bridge.TriggerWebCall("winScenario");
+        
+    }
+
+    private IEnumerator DefeatCall()
+    {
+        sources[1].Play();
+        yield return new WaitForSeconds(1.5f);
+        loseImage.enabled = true;
+        yield return new WaitForSeconds(2);
+        bridge.TriggerWebCall("failScenario");
+
+    }
+    private void RoundLED()
+    {
+        switch(currentRound)
+        {
+            case 2:
+                lights[0].enabled = true; 
+            break;
+            case 3:
+                lights[1].enabled = true;
+            break;
+            case 4:
+                lights[2].enabled = true;
+            break;
+            case 5:
+                lights[3].enabled = true;
+            break;
+            default:
+                Debug.Log("Default");
+            break;
+        }
     }
 }
